@@ -6,6 +6,7 @@ import { setItems } from "./Redux/LoginSlice"
 import NavBar from "./NavBar"
 function ShowCart()
 {
+    const cartRef=useRef([])
     const qtyRef=useRef([])
     const priceRef=useRef([])
     const [products,setProducts]=useState([])
@@ -13,9 +14,15 @@ function ShowCart()
     const remove=(pid)=>
     {
         let cart=localStorage.getItem('cart').split(',')
-        cart.splice(pid,1)
+        const qty=cart[pid]
+        cart[pid]=0
         localStorage.setItem('cart',cart)
-        updateCart()
+        cartRef.current[pid].className='hidden'
+        console.log(qty)
+        const total=parseInt(localStorage.getItem('items'))-parseInt(qty)
+        console.log(total)
+        localStorage.setItem('items',total)
+        dispatch(setItems(total))
     }
     const updateCart=()=>{
         const cart=localStorage.getItem('cart').split(',')
@@ -75,7 +82,9 @@ function ShowCart()
         {        console.log(products)
         }
         {sessionStorage.getItem('user')&&products.map((product,index)=>
-        <div key={index} className="flex flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 mx-auto my-20">
+        <>
+        {parseInt(product.qty)>0&&
+        <div ref={(e)=>{cartRef.current[product.id]=e}} key={index} className="flex flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 mx-auto my-20">
         <img className="object-cover w-100 rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg" src={product.image} alt="" />
         <div className="flex flex-col justify-between p-4 leading-normal">
         <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{product.title}</h5>
@@ -93,6 +102,7 @@ function ShowCart()
         </div>
         </div>
     </div>
+        }</>
     )}
         </>
     )
